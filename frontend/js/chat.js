@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://ecommerce-support-multi-agent.onrender.com/';
 let conversationId = null;
 let isProcessing = false;
 
