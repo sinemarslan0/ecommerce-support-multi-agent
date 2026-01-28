@@ -42,6 +42,19 @@ class ChatResponse(BaseModel):
 
 
 # API Routes
+@app.get("/", tags=["Root"])
+async def root():
+    """Root endpoint - serves index.html"""
+    frontend_path = Path(__file__).parent.parent / "frontend" / "index.html"
+    return FileResponse(path=str(frontend_path))
+
+
+@app.get("/chat.html", tags=["Root"])
+async def chat_page():
+    """Chat page endpoint - serves chat.html"""
+    frontend_path = Path(__file__).parent.parent / "frontend" / "chat.html"
+    return FileResponse(path=str(frontend_path))
+
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
@@ -73,31 +86,6 @@ async def chat_endpoint(payload: ChatRequest) -> ChatResponse:
         response=final_response,
         conversation_id=payload.conversation_id,
     )
-
-
-# Optional: CLI chat loop (for local testing)
-
-async def chat_loop() -> NoReturn:
-    """
-    Simple CLI chat loop to interact with the multi-agent support system.
-    Type 'exit' or 'quit' to stop.
-    """
-    print("Multi-Agent Customer Support (FastAPI + LangGraph)")
-    print("Type 'exit' or 'quit' to end.\n")
-
-    while True:
-        user_input = input("You: ").strip()
-        if user_input.lower() in {"exit", "quit"}:
-            print("Goodbye!")
-            break
-
-        state = await graph_app.ainvoke({"query": user_input})
-        final_response = state.get("final_response") or "Sorry, I could not generate a response."
-        print(f"Bot: {final_response}\n")
-
-
-def main() -> None:
-    asyncio.run(chat_loop())
 
 
 if __name__ == "__main__":
