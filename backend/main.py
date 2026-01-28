@@ -1,15 +1,13 @@
 from __future__ import annotations
-
 import asyncio
 from typing import NoReturn, Optional
-
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
 from graph.workflow import build_graph_app
-
+from pathlib import Path
+from fastapi.responses import FileResponse
 
 load_dotenv()
 graph_app = build_graph_app()
@@ -28,8 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Schemas
 
 class ChatRequest(BaseModel):
     message: str
