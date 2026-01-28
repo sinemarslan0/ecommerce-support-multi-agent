@@ -1,6 +1,5 @@
 from __future__ import annotations
-import asyncio
-from typing import NoReturn, Optional
+from typing import Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,8 +7,12 @@ from pydantic import BaseModel
 from graph.workflow import build_graph_app
 from pathlib import Path
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
+
+# Frontend paths
+FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 graph_app = build_graph_app()
 
 app = FastAPI(
@@ -26,6 +29,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files for CSS and JS
+app.mount("/css", StaticFiles(directory=str(FRONTEND_DIR / "css")), name="css")
+app.mount("/js", StaticFiles(directory=str(FRONTEND_DIR / "js")), name="js")
+
 
 class ChatRequest(BaseModel):
     message: str
@@ -41,15 +48,13 @@ class ChatResponse(BaseModel):
 @app.get("/", tags=["Root"])
 async def root():
     """Root endpoint - serves index.html"""
-    frontend_path = Path(__file__).parent.parent / "frontend" / "index.html"
-    return FileResponse(path=str(frontend_path))
+    return FileResponse(path=str(FRONTEND_DIR / "index.html"))
 
 
 @app.get("/chat.html", tags=["Root"])
 async def chat_page():
     """Chat page endpoint - serves chat.html"""
-    frontend_path = Path(__file__).parent.parent / "frontend" / "chat.html"
-    return FileResponse(path=str(frontend_path))
+    return FileResponse(path=str(FRONTEND_DIR / "chat.html"))
 
 
 @app.post("/chat", response_model=ChatResponse)
